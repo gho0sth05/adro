@@ -113,7 +113,7 @@ La implementación inicia con la parametrización completa del flujo para **Alko
 ---
 
 ## 🔄 Flujo de Procesamiento ETL
-
+---
 ```mermaid
 sequenceDiagram
     autonumber
@@ -133,7 +133,7 @@ sequenceDiagram
     ETL->>DB: Genera vista consolidada en PROCESSED
     Backend-->>Frontend: Retorna resumen de ejecución, métricas e informe final
     Frontend-->>Usuario: Despliega Dashboard y habilita descarga de Sell Out-Inv ALKOSTO.xlsx
-
+---
 ## 🚀 Guía de Instalación y Despliegue
 
 ### Requisitos Previos
