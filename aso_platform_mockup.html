@@ -1,0 +1,809 @@
+<!DOCTYPE html>
+<html lang="es" class="h-full bg-slate-50">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Adro - Plataforma Empresarial ETL </title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#fdf2f2',
+              100: '#fce8e8',
+              500: '#e63946',
+              600: '#d90429',
+              800: '#9b2226',
+              900: '#641220',
+            },
+            sidebar: '#4A0E17',
+            sidebarHover: '#641220',
+            sidebarActive: '#9b2226'
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+    body { font-family: 'Inter', sans-serif; }
+    .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
+    .custom-scrollbar::-webkit-scrollbar-track { background: #f1f1f1; }
+    .custom-scrollbar::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 4px; }
+    .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #cbd5e1; }
+  </style>
+</head>
+<body class="h-full flex overflow-hidden text-slate-800">
+
+  <!-- SIDEBAR NAVIGATION -->
+  <aside class="w-64 bg-sidebar text-slate-200 flex flex-col flex-shrink-0 shadow-2xl z-20">
+    <!-- Logo Header -->
+    <div class="p-5 flex items-center gap-3 border-b border-red-950/60">
+      <div class="bg-gradient-to-tr from-red-600 to-rose-500 p-2.5 rounded-xl text-white shadow-lg shadow-red-500/30">
+        <i class="fa-solid fa-candy-cane text-lg"></i>
+      </div>
+      <div>
+        <h1 class="font-bold text-white tracking-wide text-base leading-tight">Adro</h1>
+        <p class="text-xs text-rose-300 font-medium">adrooooo</p>
+      </div>
+    </div>
+
+    <!-- Navigation Menu -->
+    <nav class="flex-1 px-3 py-6 space-y-1.5 overflow-y-auto custom-scrollbar">
+      <div class="px-3 pb-2 text-[10px] font-bold uppercase tracking-wider text-rose-400/80">Flujo Secuencial</div>
+
+      <a href="#" class="sidebar-item active flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all bg-brand-600 text-white shadow-lg shadow-red-950/40" onclick="switchNav(this, 'tab-ingestion')">
+        <i class="fa-solid fa-cloud-arrow-up w-5 text-center"></i>
+        <span>1. Carga de Archivos</span>
+        <span class="ml-auto bg-red-950 text-rose-300 text-[10px] px-2 py-0.5 rounded-full font-bold">Raw</span>
+      </a>
+
+      <a href="#" class="sidebar-item flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all text-rose-200 hover:text-white hover:bg-sidebarHover" onclick="switchNav(this, 'tab-staging')">
+        <i class="fa-solid fa-filter w-5 text-center"></i>
+        <span>2. Limpieza (Staging)</span>
+      </a>
+
+      <a href="#" class="sidebar-item flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all text-rose-200 hover:text-white hover:bg-sidebarHover" onclick="switchNav(this, 'tab-maestros')">
+        <i class="fa-solid fa-link w-5 text-center"></i>
+        <span>3. Cruce de Maestros</span>
+        <span class="ml-auto w-2 h-2 rounded-full bg-amber-400 animate-pulse"></span>
+      </a>
+
+      <a href="#" class="sidebar-item flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all text-rose-200 hover:text-white hover:bg-sidebarHover" onclick="switchNav(this, 'tab-informe')">
+        <i class="fa-solid fa-file-invoice-dollar w-5 text-center"></i>
+        <span>4. Informe Final</span>
+      </a>
+
+      <div class="pt-6 pb-2 px-3">
+        <p class="text-[10px] font-bold uppercase tracking-wider text-rose-400/80">Arquitectura & Auditoría</p>
+      </div>
+
+      <a href="#" class="sidebar-item flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all text-rose-200 hover:text-white hover:bg-sidebarHover" onclick="switchNav(this, 'tab-pipeline')">
+        <i class="fa-solid fa-layer-group w-5 text-center"></i>
+        <span>Capa de Datos (MySQL)</span>
+      </a>
+
+      <a href="#" class="sidebar-item flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all text-rose-200 hover:text-white hover:bg-sidebarHover" onclick="switchNav(this, 'tab-historial')">
+        <i class="fa-solid fa-clock-rotate-left w-5 text-center"></i>
+        <span>Historial & Trazabilidad</span>
+      </a>
+
+      <a href="#" class="sidebar-item flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all text-rose-200 hover:text-white hover:bg-sidebarHover">
+        <i class="fa-solid fa-sliders w-5 text-center"></i>
+        <span>Reglas Confitería</span>
+      </a>
+    </nav>
+    <!-- User Profile Footer -->
+    <div class="p-4 border-t border-red-950/60 flex items-center gap-3 bg-red-950/30">
+      <div class="w-9 h-9 rounded-full bg-red-500/30 border border-red-400/30 flex items-center justify-center text-rose-200 font-bold text-sm">
+        SC
+      </div>
+      <div class="overflow-hidden">
+        <p class="text-xs font-semibold text-white truncate">Arquitecto Confitería</p>
+        <p class="text-[11px] text-rose-300 truncate">admin@sweetcraft.com</p>
+      </div>
+    </div>
+  </aside>
+
+  <!-- MAIN WRAPPER -->
+  <div class="flex-1 flex flex-col min-w-0 overflow-hidden">
+
+    <!-- TOPBAR WITH CLIENT DROPDOWN & SYSTEM STATUS -->
+    <header class="h-16 bg-white border-b border-slate-200 px-6 flex items-center justify-between z-10 shadow-sm">
+      
+      <!-- Client Selector Dropdown -->
+      <div class="flex items-center gap-4">
+        <span class="text-xs font-semibold uppercase text-slate-400 tracking-wider">Cliente Activo:</span>
+        <div class="relative">
+          <button id="clientSelectBtn" onclick="toggleClientDropdown()" class="flex items-center gap-3 bg-red-50 hover:bg-red-100 text-red-900 px-3.5 py-1.5 rounded-xl border border-red-200 text-sm font-semibold transition-all">
+            <span class="w-2.5 h-2.5 rounded-full bg-red-600 animate-pulse"></span>
+            <span id="selectedClientText">ALKOSTO</span>
+            <i class="fa-solid fa-chevron-down text-xs text-red-400 ml-1"></i>
+          </button>
+
+          <!-- Client Dropdown Menu (11 Clients) -->
+          <div id="clientDropdown" class="hidden absolute top-full left-0 mt-2 w-64 bg-white rounded-2xl shadow-xl border border-slate-100 py-2 z-50 max-h-80 overflow-y-auto custom-scrollbar">
+            <div class="px-3 py-1.5 text-[11px] font-bold text-slate-400 uppercase tracking-wider">Seleccionar Cliente</div>
+            <div class="divide-y divide-slate-100">
+              <button onclick="selectClient('ALKOSTO')" class="w-full text-left px-4 py-2 text-sm hover:bg-red-50 flex items-center justify-between font-medium text-slate-800">
+                Alkosto <span class="text-xs bg-red-100 text-red-700 px-2 py-0.5 rounded-full font-bold">Activo</span>
+              </button>
+              <button onclick="selectClient('CROSSUR')" class="w-full text-left px-4 py-2 text-sm hover:bg-slate-50 flex items-center justify-between text-slate-600">Crossur</button>
+              <button onclick="selectClient('FALABELLA')" class="w-full text-left px-4 py-2 text-sm hover:bg-slate-50 flex items-center justify-between text-slate-600">Falabella</button>
+              <button onclick="selectClient('FARMATODO')" class="w-full text-left px-4 py-2 text-sm hover:bg-slate-50 flex items-center justify-between text-slate-600">Farmatodo</button>
+              <button onclick="selectClient('GRUPO ÉXITO')" class="w-full text-left px-4 py-2 text-sm hover:bg-slate-50 flex items-center justify-between text-slate-600">Grupo Éxito</button>
+              <button onclick="selectClient('MECANELECTRO')" class="w-full text-left px-4 py-2 text-sm hover:bg-slate-50 flex items-center justify-between text-slate-600">Mecanelectro</button>
+              <button onclick="selectClient('PEPE GANGA')" class="w-full text-left px-4 py-2 text-sm hover:bg-slate-50 flex items-center justify-between text-slate-600">Pepe Ganga</button>
+              <button onclick="selectClient('MAKRO')" class="w-full text-left px-4 py-2 text-sm hover:bg-slate-50 flex items-center justify-between text-slate-600">Makro</button>
+              <button onclick="selectClient('PRICESMART')" class="w-full text-left px-4 py-2 text-sm hover:bg-slate-50 flex items-center justify-between text-slate-600">PriceSmart</button>
+              <button onclick="selectClient('PRIMARK')" class="w-full text-left px-4 py-2 text-sm hover:bg-slate-50 flex items-center justify-between text-slate-600">Primark</button>
+              <button onclick="selectClient('OXXO')" class="w-full text-left px-4 py-2 text-sm hover:bg-slate-50 flex items-center justify-between text-slate-600">OXXO</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- System Status and Actions -->
+      <div class="flex items-center gap-5">
+        <div class="hidden sm:flex items-center gap-2 bg-slate-50 border border-slate-200 px-3 py-1 rounded-full text-xs text-slate-600">
+          <i class="fa-solid fa-database text-red-600"></i>
+          <span>MySQL 8.4 LTS: <strong class="text-slate-800">Conectado (5 Capas)</strong></span>
+        </div>
+
+        <button class="relative text-slate-400 hover:text-red-600 p-2 rounded-xl hover:bg-red-50 transition-all">
+          <i class="fa-regular fa-bell text-lg"></i>
+          <span class="absolute top-1.5 right-1.5 w-2 h-2 bg-red-600 rounded-full"></span>
+        </button>
+
+        <button onclick="showModal('helpModal')" class="text-slate-400 hover:text-red-600 p-2 rounded-xl hover:bg-red-50 transition-all">
+          <i class="fa-regular fa-circle-question text-lg"></i>
+        </button>
+      </div>
+
+    </header>
+
+    <!-- CONTENT BODY (SCROLLABLE) -->
+    <main class="flex-1 overflow-y-auto p-6 bg-slate-50 custom-scrollbar space-y-6">
+
+      <!-- CLIENT VIEW HEADER & ACTION BUTTONS -->
+      <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-200 pb-5">
+        <div>
+          <div class="flex items-center gap-3">
+            <h2 id="currentClientTitle" class="text-2xl font-bold text-slate-900 tracking-tight">ALKOSTO</h2>
+            <span class="bg-red-100 text-red-800 text-xs font-semibold px-2.5 py-0.5 rounded-full border border-red-200">
+              🍬 Confitería - Entorno Activo
+            </span>
+          </div>
+          <p class="text-xs text-slate-500 mt-1">Automatización de Inventarios y Sell Out dividida por Capas de Arquitectura Lógica.</p>
+        </div>
+
+        <div class="flex items-center gap-2">
+          <button onclick="triggerFullPipeline()" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-xl text-xs font-semibold flex items-center gap-2 shadow-lg shadow-red-600/20 transition-all">
+            <i class="fa-solid fa-play"></i>
+            <span>Ejecutar Pipeline por Capas</span>
+          </button>
+          <button onclick="showModal('exportModal')" class="bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 px-3.5 py-2 rounded-xl text-xs font-semibold flex items-center gap-2 shadow-sm transition-all">
+            <i class="fa-solid fa-download text-red-500"></i>
+            <span>Exportar Informe</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- WORKSPACE TABS IN REAL OPERATIONAL SEQUENTIAL ORDER -->
+      <div class="flex border-b border-slate-200 space-x-8 text-sm font-medium">
+        <button id="btn-tab-ingestion" class="tab-btn active pb-3 text-red-600 border-b-2 border-red-600 font-semibold flex items-center gap-2" onclick="switchTab(this, 'tab-ingestion')">
+          <i class="fa-solid fa-cloud-arrow-up text-xs"></i> 1. Archivos de Entrada (Raw Data)
+        </button>
+        <button id="btn-tab-staging" class="tab-btn pb-3 text-slate-500 hover:text-slate-800 border-b-2 border-transparent flex items-center gap-2" onclick="switchTab(this, 'tab-staging')">
+          <i class="fa-solid fa-filter text-xs"></i> 2. Limpieza & Parseo (Staging)
+        </button>
+        <button id="btn-tab-maestros" class="tab-btn pb-3 text-slate-500 hover:text-slate-800 border-b-2 border-transparent flex items-center gap-2" onclick="switchTab(this, 'tab-maestros')">
+          <i class="fa-solid fa-link text-xs"></i> 3. Cruce con Maestros (Master Data)
+        </button>
+        <button id="btn-tab-informe" class="tab-btn pb-3 text-slate-500 hover:text-slate-800 border-b-2 border-transparent flex items-center gap-2" onclick="switchTab(this, 'tab-informe')">
+          <i class="fa-solid fa-chart-pie text-xs"></i> 4. Informe Final (Processed Data)
+        </button>
+        <button id="btn-tab-pipeline" class="tab-btn pb-3 text-slate-500 hover:text-slate-800 border-b-2 border-transparent flex items-center gap-2" onclick="switchTab(this, 'tab-pipeline')">
+          <i class="fa-solid fa-layer-group text-xs"></i> 5. Mapa de Capas & Trazabilidad
+        </button>
+        <button id="btn-tab-historial" class="tab-btn pb-3 text-slate-500 hover:text-slate-800 border-b-2 border-transparent flex items-center gap-2" onclick="switchTab(this, 'tab-historial')">
+          <i class="fa-solid fa-clock-rotate-left text-xs"></i> 6. Historial (Historical Data)
+        </button>
+      </div>
+
+      <!-- TAB 1: RAW DATA (Archivos de Entrada enviados por la empresa) -->
+      <div id="tab-ingestion" class="tab-content space-y-6">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <!-- Sell Out Upload -->
+          <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm flex flex-col justify-between">
+            <div>
+              <div class="flex items-center justify-between mb-4">
+                <div class="flex items-center gap-3">
+                  <div class="w-10 h-10 rounded-xl bg-red-50 text-red-600 flex items-center justify-center text-lg font-bold">
+                    <i class="fa-solid fa-cash-register"></i>
+                  </div>
+                  <div>
+                    <h4 class="font-bold text-slate-800 text-base">Archivo de VENTAS (ALKOSTO VENTAS.xlsx)</h4>
+                    <p class="text-xs text-slate-500">Documento base de Sell Out enviado por Alkosto</p>
+                  </div>
+                </div>
+                <span class="bg-emerald-100 text-emerald-800 text-[11px] font-bold px-2.5 py-0.5 rounded-full">Recibido</span>
+              </div>
+              
+              <div class="border-2 border-dashed border-red-200 rounded-2xl p-6 text-center bg-red-50/20 hover:bg-red-50/50 transition-all cursor-pointer">
+                <i class="fa-solid fa-file-excel text-4xl text-red-500 mb-2"></i>
+                <p class="text-xs font-bold text-slate-800">ALKOSTO VENTAS.xlsx</p>
+                <p class="text-[10px] text-slate-500 mt-1">128 filas x 48 columnas • Hojas: VENTAS UNIDADES / VENTAS VALOR</p>
+              </div>
+
+              <div class="mt-4 p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs space-y-1">
+                <p class="text-slate-600"><strong>Campos Detectados:</strong> UNINEG, EAN ITEM, Matriz de Meses (Ene - Oct), Cant_Unidades, Valor_Venta_Neta</p>
+              </div>
+            </div>
+            
+            <div class="mt-6 pt-4 border-t border-slate-100 flex items-center justify-between text-xs text-slate-600">
+              <span>Almacenamiento RAW:</span>
+              <span class="font-bold text-red-600">Almacenado intacto en servidor</span>
+            </div>
+          </div>
+
+          <!-- Inventory Upload -->
+          <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm flex flex-col justify-between">
+            <div>
+              <div class="flex items-center justify-between mb-4">
+                <div class="flex items-center gap-3">
+                  <div class="w-10 h-10 rounded-xl bg-rose-50 text-rose-600 flex items-center justify-center text-lg font-bold">
+                    <i class="fa-solid fa-boxes-stacked"></i>
+                  </div>
+                  <div>
+                    <h4 class="font-bold text-slate-800 text-base">Archivo de INVENTARIO (ALKOSTO INVENTARIO.xlsx)</h4>
+                    <p class="text-xs text-slate-500">Documento base de stock enviado por Alkosto</p>
+                  </div>
+                </div>
+                <span class="bg-emerald-100 text-emerald-800 text-[11px] font-bold px-2.5 py-0.5 rounded-full">Recibido</span>
+              </div>
+
+              <div class="border-2 border-dashed border-red-200 rounded-2xl p-6 text-center bg-red-50/20 hover:bg-red-50/50 transition-all cursor-pointer">
+                <i class="fa-solid fa-file-excel text-4xl text-red-500 mb-2"></i>
+                <p class="text-xs font-bold text-slate-800">ALKOSTO INVENTARIO.xlsx</p>
+                <p class="text-[10px] text-slate-500 mt-1">230 filas x 9 columnas • Hoja: Hoja1</p>
+              </div>
+
+              <div class="mt-4 p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs space-y-1">
+                <p class="text-slate-600"><strong>Campos Detectados:</strong> UNINEG, ARTICULO, DESCRIPCION, MARCA, INV, TRANSITO, DI</p>
+              </div>
+            </div>
+
+            <div class="mt-6 pt-4 border-t border-slate-100 flex items-center justify-between text-xs text-slate-600">
+              <span>Almacenamiento RAW:</span>
+              <span class="font-bold text-red-600">Almacenado intacto en servidor</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB 2: STAGING DATA (Limpieza, Parseo y Detección de Errores) -->
+      <div id="tab-staging" class="tab-content hidden space-y-6">
+        <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
+          <div class="flex items-center justify-between mb-4">
+            <div>
+              <h4 class="font-bold text-slate-800 text-base">Capa B: STAGING DATA (Procesamiento Temporal)</h4>
+              <p class="text-xs text-slate-500">Lectura de datos, unificación de formatos de fecha, limpieza de nulos y preparación para cruces.</p>
+            </div>
+            <span class="bg-amber-100 text-amber-800 text-xs font-bold px-3 py-1 rounded-full animate-pulse">14,280 Filas en Staging</span>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs mb-6">
+            <div class="p-4 bg-slate-50 rounded-xl border border-slate-200">
+              <div class="flex items-center gap-2 font-bold text-slate-800 mb-1">
+                <i class="fa-solid fa-wand-magic-sparkles text-red-600"></i> Normalización EAN & UNINEG
+              </div>
+              <p class="text-slate-500">Eliminación de espacios vacíos y estandarización a texto para evitar pérdida de ceros iniciales.</p>
+            </div>
+            <div class="p-4 bg-slate-50 rounded-xl border border-slate-200">
+              <div class="flex items-center gap-2 font-bold text-slate-800 mb-1">
+                <i class="fa-solid fa-calendar-days text-red-600"></i> Desanidado de Matrices
+              </div>
+              <p class="text-slate-500">Conversión de columnas mensuales horizontales a registros verticales relacionales (Año, Mes, No. Mes).</p>
+            </div>
+            <div class="p-4 bg-slate-50 rounded-xl border border-slate-200">
+              <div class="flex items-center gap-2 font-bold text-slate-800 mb-1">
+                <i class="fa-solid fa-bug text-red-600"></i> Control de Inconsistencias
+              </div>
+              <p class="text-slate-500">Detección de duplicados y alertas de códigos no registrados en catálogo.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB 3: MASTER DATA (Cruce con Maestro de Clientes/Puntos y SKUs) -->
+      <div id="tab-maestros" class="tab-content hidden space-y-6">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          
+          <!-- Store Master Crossing -->
+          <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
+            <div class="flex items-center justify-between mb-4">
+              <h4 class="font-bold text-slate-800 text-base flex items-center gap-2">
+                <i class="fa-solid fa-store text-red-600"></i> Cruce con BASE CLIENTES ALKOSTO.xlsx
+              </h4>
+              <span class="text-xs bg-red-50 text-red-700 px-2.5 py-1 rounded-full font-bold">19 Puntos Homologados</span>
+            </div>
+            <p class="text-xs text-slate-500 mb-4">Homologa el código UNINEG de entrada con el nombre real de tienda, dirección, ciudad, departamento y coordenadas.</p>
+            
+            <div class="space-y-2 text-xs">
+              <div class="p-3 bg-slate-50 rounded-xl flex items-center justify-between border border-slate-200">
+                <span>UNINEG: <strong class="text-slate-800">AK170</strong></span>
+                <span>Alkosto Calle 170 (Bogotá)</span>
+                <span class="text-emerald-600 font-bold"><i class="fa-solid fa-circle-check"></i> Homologado</span>
+              </div>
+              <div class="p-3 bg-slate-50 rounded-xl flex items-center justify-between border border-slate-200">
+                <span>UNINEG: <strong class="text-slate-800">AKB68</strong></span>
+                <span>Alkosto Avenida 68 (Bogotá)</span>
+                <span class="text-emerald-600 font-bold"><i class="fa-solid fa-circle-check"></i> Homologado</span>
+              </div>
+              <div class="p-3 bg-slate-50 rounded-xl flex items-center justify-between border border-slate-200">
+                <span>UNINEG: <strong class="text-slate-800">AKVEN</strong></span>
+                <span>Alkosto Venecia (Bogotá)</span>
+                <span class="text-emerald-600 font-bold"><i class="fa-solid fa-circle-check"></i> Homologado</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- SKU Master Crossing -->
+          <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
+            <div class="flex items-center justify-between mb-4">
+              <h4 class="font-bold text-slate-800 text-base flex items-center gap-2">
+                <i class="fa-solid fa-candy-cane text-red-600"></i> Cruce con SKUS ALKOSTO.xlsx
+              </h4>
+              <span class="text-xs bg-rose-50 text-rose-700 px-2.5 py-1 rounded-full font-bold">23 SKUs Dulces</span>
+            </div>
+            <p class="text-xs text-slate-500 mb-4">Mapea el código EAN del producto con la REF interna, descripción del dulce, embalaje caja y marca.</p>
+            
+            <div class="space-y-2 text-xs">
+              <div class="p-3 bg-slate-50 rounded-xl flex items-center justify-between border border-slate-200">
+                <span>EAN: <strong class="text-slate-800">6936756287201</strong></span>
+                <span>GOMA AMOS PEELERZ DURAZNO X 65 GR</span>
+                <span class="text-emerald-600 font-bold"><i class="fa-solid fa-circle-check"></i> Homologado</span>
+              </div>
+              <div class="p-3 bg-slate-50 rounded-xl flex items-center justify-between border border-slate-200">
+                <span>EAN: <strong class="text-slate-800">79200558338</strong></span>
+                <span>NERDS CANDY RAINBOW X 141 GR</span>
+                <span class="text-emerald-600 font-bold"><i class="fa-solid fa-circle-check"></i> Homologado</span>
+              </div>
+              <div class="p-3 bg-slate-50 rounded-xl flex items-center justify-between border border-slate-200">
+                <span>EAN: <strong class="text-slate-800">8695504169616</strong></span>
+                <span>CHO FONDANTE ECLAIRS CARAMELO X 500 GR</span>
+                <span class="text-emerald-600 font-bold"><i class="fa-solid fa-circle-check"></i> Homologado</span>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- TAB 4: PROCESSED DATA (Informe Final & Métricas Calculadas) -->
+      <div id="tab-informe" class="tab-content hidden space-y-6">
+        
+        <!-- KPI Summary Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+            <p class="text-xs text-slate-400 font-semibold uppercase tracking-wider">Sell Out Total (Ventas)</p>
+            <h3 class="text-2xl font-bold text-slate-900 mt-1">$ 485.20 M</h3>
+            <p class="text-xs text-emerald-600 font-semibold mt-2 flex items-center gap-1">
+              <i class="fa-solid fa-arrow-trend-up"></i> +15.8% vs mes anterior
+            </p>
+          </div>
+
+          <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+            <p class="text-xs text-slate-400 font-semibold uppercase tracking-wider">Unidades Golosinas Vendidas</p>
+            <h3 class="text-2xl font-bold text-slate-900 mt-1">128,450 Unid.</h3>
+            <p class="text-xs text-emerald-600 font-semibold mt-2 flex items-center gap-1">
+              <i class="fa-solid fa-arrow-trend-up"></i> +8.4% en volumen
+            </p>
+          </div>
+
+          <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+            <p class="text-xs text-slate-400 font-semibold uppercase tracking-wider">Valor Inventario Stock</p>
+            <h3 class="text-2xl font-bold text-slate-900 mt-1">$ 920.40 M</h3>
+            <p class="text-xs text-slate-500 font-medium mt-2">Días Promedio: <strong>26 Días</strong></p>
+          </div>
+
+          <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+            <p class="text-xs text-slate-400 font-semibold uppercase tracking-wider">Alertas de Agotados</p>
+            <h3 class="text-2xl font-bold text-red-600 mt-1">2 Tiendas</h3>
+            <p class="text-xs text-red-600 font-semibold mt-2 flex items-center gap-1">
+              <i class="fa-solid fa-circle-exclamation"></i> Requiere reabastecimiento
+            </p>
+          </div>
+        </div>
+
+        <!-- Charts Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
+            <div class="flex items-center justify-between mb-4">
+              <h4 class="font-bold text-slate-800 text-sm">Sell Out vs. Stock (Categoría Dulces)</h4>
+              <span class="text-xs text-slate-400">Últimos 6 Meses</span>
+            </div>
+            <div class="h-64">
+              <canvas id="selloutChart"></canvas>
+            </div>
+          </div>
+
+          <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
+            <div class="flex items-center justify-between mb-4">
+              <h4 class="font-bold text-slate-800 text-sm">Distribución por Tipo de Dulce</h4>
+              <span class="text-xs text-slate-400">Alkosto Colombia</span>
+            </div>
+            <div class="h-64">
+              <canvas id="storesChart"></canvas>
+            </div>
+          </div>
+        </div>
+
+        <!-- Detailed Excel Output Preview (Sell Out-Inv ALKOSTO.xlsx) -->
+        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+          <div class="p-5 border-b border-slate-100 flex items-center justify-between">
+            <div>
+              <h4 class="font-bold text-slate-800 text-sm">Informe Final Generado: Sell Out-Inv ALKOSTO.xlsx</h4>
+              <p class="text-xs text-slate-500">Resultado de la consolidación de entradas crudas cruzadas con los maestros.</p>
+            </div>
+            <button class="bg-red-600 hover:bg-red-700 text-white text-xs px-4 py-2 rounded-xl font-bold flex items-center gap-2 shadow-lg shadow-red-600/20">
+              <i class="fa-solid fa-file-excel"></i> Descargar Excel Completo
+            </button>
+          </div>
+
+          <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse text-xs">
+              <thead>
+                <tr class="bg-slate-50 font-bold text-slate-400 uppercase tracking-wider border-b border-slate-200">
+                  <th class="p-3 pl-5">UNINEG</th>
+                  <th class="p-3">Punto de Venta Homologado</th>
+                  <th class="p-3">EAN / Artículo</th>
+                  <th class="p-3">Producto Homologado</th>
+                  <th class="p-3">Marca</th>
+                  <th class="p-3">Sell-Out Ago</th>
+                  <th class="p-3">Inv Stock</th>
+                  <th class="p-3">Días Inv.</th>
+                  <th class="p-3 pr-5">Hallazgos / Estado</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-slate-100 text-slate-700">
+                <tr class="hover:bg-slate-50/80">
+                  <td class="p-3 pl-5 font-mono font-bold">AK170</td>
+                  <td class="p-3 font-semibold text-slate-900">Alkosto Calle 170</td>
+                  <td class="p-3 font-mono">6936756287201</td>
+                  <td class="p-3">Gom Amos Peelerz Stdo 65g x3u</td>
+                  <td class="p-3 font-bold text-red-900">AMOS</td>
+                  <td class="p-3 font-bold">126 Unid.</td>
+                  <td class="p-3">107 Unid.</td>
+                  <td class="p-3 text-emerald-600 font-bold">26.1 Días</td>
+                  <td class="p-3 pr-5"><span class="bg-emerald-100 text-emerald-800 text-[10px] font-bold px-2 py-0.5 rounded-full">Stock Sano</span></td>
+                </tr>
+                <tr class="hover:bg-slate-50/80">
+                  <td class="p-3 pl-5 font-mono font-bold">AK170</td>
+                  <td class="p-3 font-semibold text-slate-900">Alkosto Calle 170</td>
+                  <td class="p-3 font-mono">8786310033144</td>
+                  <td class="p-3">Chupeta Chamoy Sandia 40u 600g</td>
+                  <td class="p-3 font-bold text-red-900">CHAMOY</td>
+                  <td class="p-3 font-bold">83 Unid.</td>
+                  <td class="p-3">25 Unid.</td>
+                  <td class="p-3 text-amber-600 font-bold">17.1 Días</td>
+                  <td class="p-3 pr-5"><span class="bg-amber-100 text-amber-800 text-[10px] font-bold px-2 py-0.5 rounded-full">Seguimiento Agotados</span></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- TAB 5: ARCHITECTURE & DATA LAYERS (Todas las capas juntas en vivo) -->
+      <div id="tab-pipeline" class="tab-content hidden space-y-6">
+        <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
+          <div class="flex items-center justify-between mb-6">
+            <div>
+              <h3 class="font-bold text-slate-800 text-base">Arquitectura de Datos por Capas (Modelo Lógico en MySQL)</h3>
+              <p class="text-xs text-slate-500">Separación conceptual de datos originales, temporales, maestros, históricos y procesados.</p>
+            </div>
+            <span class="text-xs bg-red-50 text-red-700 px-3 py-1 rounded-full font-medium">Motor MySQL 8.4 LTS</span>
+          </div>
+
+          <!-- 5 Layers Visual Grid -->
+          <div class="grid grid-cols-1 md:grid-cols-5 gap-4 relative">
+            <!-- Capa A -->
+            <div class="bg-slate-50 rounded-xl border-2 border-slate-200 p-4 flex flex-col justify-between">
+              <span class="text-[10px] font-bold uppercase text-slate-400">Capa A</span>
+              <div class="my-3">
+                <i class="fa-solid fa-file-excel text-red-600 text-2xl mb-2"></i>
+                <h4 class="font-bold text-slate-800 text-sm">1. RAW DATA</h4>
+                <p class="text-[11px] text-slate-500 mt-1">Archivos originales intactos guardados en servidor.</p>
+              </div>
+              <span class="text-[10px] font-bold text-slate-600 pt-2 border-t border-slate-200">2 Libros Excel</span>
+            </div>
+
+            <!-- Capa B -->
+            <div class="bg-slate-50 rounded-xl border-2 border-slate-200 p-4 flex flex-col justify-between">
+              <span class="text-[10px] font-bold uppercase text-slate-400">Capa B</span>
+              <div class="my-3">
+                <i class="fa-solid fa-filter text-amber-600 text-2xl mb-2"></i>
+                <h4 class="font-bold text-slate-800 text-sm">2. STAGING DATA</h4>
+                <p class="text-[11px] text-slate-500 mt-1">Tablas temporales de limpieza y parseo.</p>
+              </div>
+              <span class="text-[10px] font-bold text-amber-700 pt-2 border-t border-slate-200">14.2k Filas</span>
+            </div>
+
+            <!-- Capa C -->
+            <div class="bg-slate-50 rounded-xl border-2 border-slate-200 p-4 flex flex-col justify-between">
+              <span class="text-[10px] font-bold uppercase text-slate-400">Capa C</span>
+              <div class="my-3">
+                <i class="fa-solid fa-tags text-rose-600 text-2xl mb-2"></i>
+                <h4 class="font-bold text-slate-800 text-sm">3. MASTER DATA</h4>
+                <p class="text-[11px] text-slate-500 mt-1">Catálogos de Tiendas y SKUs de Confitería.</p>
+              </div>
+              <span class="text-[10px] font-bold text-slate-600 pt-2 border-t border-slate-200">Maestros Activos</span>
+            </div>
+
+            <!-- Capa D -->
+            <div class="bg-slate-50 rounded-xl border-2 border-slate-200 p-4 flex flex-col justify-between">
+              <span class="text-[10px] font-bold uppercase text-slate-400">Capa D</span>
+              <div class="my-3">
+                <i class="fa-solid fa-box-archive text-red-800 text-2xl mb-2"></i>
+                <h4 class="font-bold text-slate-800 text-sm">4. HISTORICAL</h4>
+                <p class="text-[11px] text-slate-500 mt-1">Persistencia de ejecuciones y cierres.</p>
+              </div>
+              <span class="text-[10px] font-bold text-slate-600 pt-2 border-t border-slate-200">Históricos Nov 2026</span>
+            </div>
+
+            <!-- Capa E -->
+            <div class="bg-red-50 rounded-xl border-2 border-red-300 p-4 flex flex-col justify-between">
+              <span class="text-[10px] font-bold uppercase text-red-600">Capa E</span>
+              <div class="my-3">
+                <i class="fa-solid fa-check-double text-red-600 text-2xl mb-2"></i>
+                <h4 class="font-bold text-red-950 text-sm">5. PROCESSED</h4>
+                <p class="text-[11px] text-red-700 mt-1">Consolidado final listo para descargar.</p>
+              </div>
+              <span class="text-[10px] font-bold text-red-800 pt-2 border-t border-red-200">Sell Out-Inv ALKOSTO</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB 6: HISTORICAL & AUDIT -->
+      <div id="tab-historial" class="tab-content hidden space-y-6">
+        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+          <div class="p-5 border-b border-slate-100 flex items-center justify-between">
+            <div>
+              <h4 class="font-bold text-slate-800 text-sm">Historial de Ejecuciones de Procesos ETL (Confitería)</h4>
+              <p class="text-xs text-slate-500">Registro de auditoría y trazabilidad por lote de ejecución.</p>
+            </div>
+            <span class="text-xs text-slate-400 font-medium">Últimos lotes</span>
+          </div>
+
+          <div class="overflow-x-auto text-xs">
+            <table class="w-full text-left border-collapse">
+              <thead>
+                <tr class="bg-slate-50 font-bold text-slate-400 uppercase tracking-wider border-b border-slate-200">
+                  <th class="p-3.5 pl-5">ID Lote (Batch)</th>
+                  <th class="p-3.5">Fecha y Hora</th>
+                  <th class="p-3.5">Cliente</th>
+                  <th class="p-3.5">Registros Procesados</th>
+                  <th class="p-3.5">Usuario</th>
+                  <th class="p-3.5 pr-5">Estado</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-slate-100 text-slate-700">
+                <tr class="hover:bg-slate-50/80">
+                  <td class="p-3.5 pl-5 font-mono font-bold text-red-600">#BATCH-SWEET-014</td>
+                  <td class="p-3.5">04 Nov 2026, 11:30 AM</td>
+                  <td class="p-3.5 font-semibold text-slate-800">Alkosto</td>
+                  <td class="p-3.5">14,280 filas</td>
+                  <td class="p-3.5">admin@sweetcraft.com</td>
+                  <td class="p-3.5 pr-5"><span class="bg-emerald-100 text-emerald-800 text-[10px] font-bold px-2 py-0.5 rounded-full">Éxito</span></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+    </main>
+  </div>
+
+  <!-- EXPORT MODAL -->
+  <div id="exportModal" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+    <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl border border-slate-100">
+      <div class="flex items-center justify-between mb-4">
+        <h3 class="font-bold text-slate-900 text-base">Exportar Informe Final</h3>
+        <button onclick="hideModal('exportModal')" class="text-slate-400 hover:text-slate-600" aria-label="Cerrar modal de exportación">
+          <i class="fa-solid fa-xmark text-lg"></i>
+        </button>
+      </div>
+      <p class="text-xs text-slate-600 leading-relaxed mb-4">
+        Genera el paquete final del cliente activo con métricas, trazabilidad y archivos procesados.
+      </p>
+      <div class="bg-red-50 border border-red-100 rounded-xl p-3 text-xs text-red-950 space-y-2">
+        <p><strong>Cliente:</strong> Alkosto</p>
+        <p><strong>Formato:</strong> Excel + PDF resumido</p>
+        <p><strong>Estado:</strong> Listo para descarga</p>
+      </div>
+      <div class="mt-5 flex gap-3">
+        <button onclick="hideModal('exportModal')" class="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-xs py-2.5 rounded-xl transition-all">
+          Cerrar
+        </button>
+        <button onclick="hideModal('exportModal')" class="flex-1 bg-brand-600 hover:bg-brand-700 text-white font-semibold text-xs py-2.5 rounded-xl transition-all">
+          Descargar
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- HELP MODAL -->
+  <div id="helpModal" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+    <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl border border-slate-100">
+      <div class="flex items-center justify-between mb-4">
+        <h3 class="font-bold text-slate-900 text-base">Asistente SweetCraft</h3>
+        <button onclick="hideModal('helpModal')" class="text-slate-400 hover:text-slate-600" aria-label="Cerrar asistente">
+          <i class="fa-solid fa-xmark text-lg"></i>
+        </button>
+      </div>
+      <p class="text-xs text-slate-600 leading-relaxed mb-4">
+        Plataforma empresarial de automatización de inventarios y Sell Out especializada en confitería.
+      </p>
+      <div class="bg-red-50 border border-red-100 rounded-xl p-3 text-xs text-red-950 space-y-1">
+        <p><strong>Cliente Activo:</strong> Alkosto</p>
+        <p><strong>Motor ETL:</strong> Python + FastAPI + Pandas</p>
+        <p><strong>Base de Datos:</strong> MySQL 8.4 LTS (5 Capas)</p>
+      </div>
+      <button onclick="hideModal('helpModal')" class="w-full mt-5 bg-brand-600 hover:bg-brand-700 text-white font-semibold text-xs py-2.5 rounded-xl transition-all">
+        Entendido
+      </button>
+    </div>
+  </div>
+
+  <!-- JAVASCRIPT FUNCTIONS -->
+  <script>
+    // Tab switching logic
+    function switchTab(button, tabId) {
+      document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.classList.remove('active', 'text-red-600', 'border-red-600', 'font-semibold');
+        btn.classList.add('text-slate-500', 'border-transparent');
+      });
+      button.classList.add('active', 'text-red-600', 'border-red-600', 'font-semibold');
+      button.classList.remove('text-slate-500', 'border-transparent');
+
+      document.querySelectorAll('.tab-content').forEach(content => {
+        content.classList.add('hidden');
+      });
+      document.getElementById(tabId).classList.remove('hidden');
+    }
+
+    // Sidebar navigation trigger
+    function switchNav(navElement, tabId) {
+      document.querySelectorAll('.sidebar-item').forEach(item => {
+        item.classList.remove('active', 'bg-brand-600', 'text-white', 'shadow-lg');
+        item.classList.add('text-rose-200');
+      });
+      navElement.classList.add('active', 'bg-brand-600', 'text-white', 'shadow-lg');
+      navElement.classList.remove('text-rose-200');
+
+      const btn = document.getElementById('btn-' + tabId);
+      if (btn) switchTab(btn, tabId);
+    }
+
+    // Client Selection Dropdown Toggle
+    function toggleClientDropdown() {
+      const dropdown = document.getElementById('clientDropdown');
+      if (dropdown) dropdown.classList.toggle('hidden');
+    }
+
+    // Client Selection
+    function selectClient(clientName) {
+      const selectedClientText = document.getElementById('selectedClientText');
+      const currentClientTitle = document.getElementById('currentClientTitle');
+      const dropdown = document.getElementById('clientDropdown');
+
+      if (selectedClientText) selectedClientText.innerText = clientName;
+      if (currentClientTitle) currentClientTitle.innerText = clientName;
+      if (dropdown) dropdown.classList.add('hidden');
+    }
+
+    // Modal Helpers
+    function showModal(modalId) {
+      const modal = document.getElementById(modalId);
+      if (modal) modal.classList.remove('hidden');
+    }
+    function hideModal(modalId) {
+      const modal = document.getElementById(modalId);
+      if (modal) modal.classList.add('hidden');
+    }
+
+    document.addEventListener('click', function(event) {
+      const dropdown = document.getElementById('clientDropdown');
+      const button = document.getElementById('clientSelectBtn');
+
+      if (!dropdown || !button) return;
+      if (!button.contains(event.target) && !dropdown.contains(event.target)) {
+        dropdown.classList.add('hidden');
+      }
+    });
+
+    document.addEventListener('keydown', function(event) {
+      if (event.key === 'Escape') {
+        const dropdown = document.getElementById('clientDropdown');
+        if (dropdown) dropdown.classList.add('hidden');
+
+        ['helpModal', 'exportModal'].forEach(function(modalId) {
+          const modal = document.getElementById(modalId);
+          if (modal) modal.classList.add('hidden');
+        });
+      }
+    });
+
+    function triggerFullPipeline() {
+      alert(`Ejecutando Pipeline completo por capas:
+1. Extracción de archivos en Raw Data
+2. Limpieza en Staging Data
+3. Cruce con Master Data
+4. Persistencia en Historical Data
+5. Generación de Processed Data.`);
+    }
+
+    // Chart.js Initialization
+    window.onload = function() {
+      const ctx1 = document.getElementById('selloutChart').getContext('2d');
+      new Chart(ctx1, {
+        type: 'line',
+        data: {
+          labels: ['Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov'],
+          datasets: [
+            {
+              label: 'Ventas Sell Out ($M)',
+              data: [380, 410, 395, 430, 460, 485],
+              borderColor: '#e63946',
+              backgroundColor: 'rgba(230, 57, 70, 0.1)',
+              fill: true,
+              tension: 0.3
+            },
+            {
+              label: 'Stock Inventario ($M)',
+              data: [850, 910, 890, 940, 900, 920],
+              borderColor: '#94a3b8',
+              borderDash: [5, 5],
+              tension: 0.3
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { position: 'bottom', labels: { boxWidth: 12, font: { size: 11 } } } }
+        }
+      });
+
+      const ctx2 = document.getElementById('storesChart').getContext('2d');
+      new Chart(ctx2, {
+        type: 'doughnut',
+        data: {
+          labels: ['Chocolates', 'Gomitas', 'Caramelos', 'Paletas', 'Otros'],
+          datasets: [{
+            data: [40, 25, 18, 12, 5],
+            backgroundColor: ['#e63946', '#f28482', '#ffb703', '#8ecae6', '#cbd5e1']
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { position: 'right', labels: { boxWidth: 12, font: { size: 11 } } } }
+        }
+      });
+    };
+  </script>
+</body>
+</html>
