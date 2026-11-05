@@ -133,58 +133,6 @@ sequenceDiagram
     ETL->>DB: Genera vista consolidada en PROCESSED
     Backend-->>Frontend: Retorna resumen de ejecución, métricas e informe final
     Frontend-->>Usuario: Despliega Dashboard y habilita descarga de Sell Out-Inv ALKOSTO.xlsx
-```
-
----
-
-## 📁 Estructura del Repositorio
-
-```text
-plataforma-inventarios-sellout/
-├── docs/
-│   ├── figma_design_system.pdf
-│   └── arquitectura_datos_capas.md
-├── backend/
-│   ├── app/
-│   │   ├── api/
-│   │   │   └── v1/
-│   │   │       ├── endpoints/
-│   │   │       │   ├── upload.py
-│   │   │       │   ├── masters.py
-│   │   │       │   └── reports.py
-│   │   ├── core/
-│   │   │   └── config.py
-│   │   ├── db/
-│   │   │   └── session.py
-│   │   ├── etl/
-│   │   │   ├── raw_extractor.py
-│   │   │   ├── transformer_alkosto.py
-│   │   │   └── loader_mysql.py
-│   │   └── models/
-│   │       └── schema.py
-│   ├── requirements.txt
-│   └── main.py
-├── frontend/
-│   ├── src/
-│   │   ├── components/
-│   │   │   ├── common/
-│   │   │   ├── etl/
-│   │   │   └── reports/
-│   │   ├── pages/
-│   │   │   ├── Dashboard.tsx
-│   │   │   ├── FileUpload.tsx
-│   │   │   └── MasterCatalogs.tsx
-│   │   ├── App.tsx
-│   │   └── index.tsx
-│   ├── package.json
-│   └── tsconfig.json
-├── database/
-│   ├── init_schema.sql
-│   └── migrations/
-└── README.md
-```
-
----
 
 ## 🚀 Guía de Instalación y Despliegue
 
